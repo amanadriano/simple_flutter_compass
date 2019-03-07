@@ -17,15 +17,20 @@ class SimpleFlutterCompass {
   }
 
   static const mChannel = EventChannel("com.palawenos.simple_flutter_compas.event");
+  static StreamSubscription _compasSubscription;
 
   static Future<void> listenToCompas(Function listener) async {
-    mChannel.receiveBroadcastStream().listen((dynamic event) {
+    _compasSubscription = mChannel.receiveBroadcastStream().listen((dynamic event) {
       double reading = event;
       listener(reading);
     }, onError: (dynamic error) {
       print("error $error");
       return 0;
     });
-
   }
+
+  static Future<void> stopListenCompas() async {
+    _compasSubscription.cancel();
+  }
+
 }

@@ -32,6 +32,7 @@ class _MyAppState extends State<MyApp> {
           _compas = reading.ceil();
         });
       });
+
     } on PlatformException {
 
     }

@@ -1,8 +1,8 @@
 name: simple_flutter_compass
 description: A new Flutter plugin compass
 version: 0.0.1
-author:
-homepage:
+author: Aman Adriano <secondrnd@gmail.com>
+homepage: https://github.com/amanadriano/simple_flutter_compass
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
