@@ -12,11 +12,13 @@ class SimpleFlutterCompass {
   }
 
   static Future<bool> check() async {
-    final bool success = await _channel.invokeMethod("check");
+    var success = true;
+//    final bool success = await _channel.invokeMethod("check");
+    final bool t = await _channel.invokeMethod("check");
     return success;
   }
 
-  static const mChannel = EventChannel("com.palawenos.simple_flutter_compas.event");
+  static const mChannel = const EventChannel("com.palawenos.simple_flutter_compas.event");
   static StreamSubscription _compasSubscription;
 
   static Future<void> listenToCompas(Function listener) async {
