@@ -14,11 +14,10 @@ import io.flutter.plugin.common.PluginRegistry.Registrar
 
 class SimpleFlutterCompassPlugin: MethodCallHandler {
 
-  lateinit var mSensorManager : SensorManager
-
   companion object {
     lateinit var mRegistrar : Registrar;
-    lateinit var mChannel : EventChannel
+    lateinit var mChannel : EventChannel;
+    lateinit var mSensorManager : SensorManager;
 
     @JvmStatic
     fun registerWith(registrar: Registrar) {
@@ -27,7 +26,8 @@ class SimpleFlutterCompassPlugin: MethodCallHandler {
       val channel = MethodChannel(registrar.messenger(), "com.palawenos.simple_flutter_compas.method")
       channel.setMethodCallHandler(SimpleFlutterCompassPlugin())
 
-      val sensorListener = SensorListener(registrar.activeContext().getSystemService(Context.SENSOR_SERVICE) as SensorManager);
+      mSensorManager = registrar.activeContext().getSystemService(Context.SENSOR_SERVICE) as SensorManager;
+      val sensorListener = SensorListener(mSensorManager);
       mChannel = EventChannel(registrar.view(), "com.palawenos.simple_flutter_compas.event")
       mChannel.setStreamHandler(sensorListener);
 
@@ -35,13 +35,16 @@ class SimpleFlutterCompassPlugin: MethodCallHandler {
   }
 
   override fun onMethodCall(call: MethodCall, result: Result) {
-    if (call.method == "getPlatformVersion") {
-      result.success("Android ${android.os.Build.VERSION.RELEASE}")
-    } else if (call.method == "check") {
-      val success = this.init();
-      result.success(success);
-    } else {
-      result.notImplemented()
+    when(call.method) {
+      "getPlatformVersion"->
+        result.success("Android ${android.os.Build.VERSION.RELEASE}")
+      "check" -> {
+        val success = this.init();
+        result.success(success);
+      }
+      "start" -> result.success("start")
+      "stop" -> result.success("stop")
+      else -> result.notImplemented()
     }
   }
 

@@ -13,8 +13,7 @@ class SimpleFlutterCompass {
 
   static Future<bool> check() async {
     var success = true;
-//    final bool success = await _channel.invokeMethod("check");
-    final bool t = await _channel.invokeMethod("check");
+    success = await _channel.invokeMethod("check");
     return success;
   }
 
@@ -23,16 +22,29 @@ class SimpleFlutterCompass {
 
   static Future<void> listenToCompas(Function listener) async {
     _compasSubscription = mChannel.receiveBroadcastStream().listen((dynamic event) {
-      double reading = event;
-      listener(reading);
+      listener(event < 0 ? event * -1 : event);
     }, onError: (dynamic error) {
       print("error $error");
-      return 0;
+      listener(0);
     });
   }
 
+  /**
+   * stops the hardware and cancels the subscription
+   */
   static Future<void> stopListenCompas() async {
+    _channel.invokeMethod("stop");
+    if (_compasSubscription == null) return;
     _compasSubscription.cancel();
   }
+
+  /**
+   * for iOS only
+   * starts the hardware
+   */
+  static Future<void> start() async {
+    _channel.invokeMethod("start");
+  }
+
 
 }

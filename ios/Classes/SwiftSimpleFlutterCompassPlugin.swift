@@ -1,12 +1,14 @@
 import Flutter
 import UIKit
 import CoreMotion
+import CoreLocation
 
-public class SwiftSimpleFlutterCompassPlugin: NSObject, FlutterPlugin, FlutterStreamHandler {
+public class SwiftSimpleFlutterCompassPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CLLocationManagerDelegate {
 
     private var eventSink : FlutterEventSink?
-    private var motionManager :CMMotionManager?
-    private var operationQue = OperationQueue()
+    private var mRegistrar : FlutterPluginRegistrar?
+
+    private var clLocationManager : CLLocationManager?
     
     
   public static func register(with registrar: FlutterPluginRegistrar) {
@@ -14,17 +16,21 @@ public class SwiftSimpleFlutterCompassPlugin: NSObject, FlutterPlugin, FlutterSt
     let channel = FlutterMethodChannel(name: "com.palawenos.simple_flutter_compas.method", binaryMessenger: registrar.messenger())
     let mChannel = FlutterEventChannel(name: "com.palawenos.simple_flutter_compas.event", binaryMessenger: registrar.messenger())
     let instance = SwiftSimpleFlutterCompassPlugin()
+    instance.mRegistrar = registrar
     registrar.addMethodCallDelegate(instance, channel: channel)
-
-    mChannel.setStreamHandler(instance)
-    instance.motionManager = CMMotionManager()
     
+    mChannel.setStreamHandler(instance)
+    
+    instance.clLocationManager = CLLocationManager()
+    instance.clLocationManager?.headingOrientation = CLDeviceOrientation.faceUp
+    instance.clLocationManager?.distanceFilter = 1000;
+    instance.clLocationManager?.delegate = instance;
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch(call.method) {
         case "check":
-            result(motionManager?.isMagnetometerAvailable);
+            result(CLLocationManager.headingAvailable())
         case "stop":
             stop()
         case "start":
@@ -45,18 +51,18 @@ public class SwiftSimpleFlutterCompassPlugin: NSObject, FlutterPlugin, FlutterSt
         return nil
     }
     
-    
     private func listenToCompas() {
-        motionManager?.magnetometerUpdateInterval = 1
-        motionManager?.startMagnetometerUpdates(to: self.operationQue, withHandler: self.handler)
+        clLocationManager?.startUpdatingHeading()
     }
     
-    private func handler(data: CMMagnetometerData?, error: Error?) {
-        self.eventSink!(1);
-    }
     
     private func stop() {
-        motionManager?.stopMagnetometerUpdates();
+        clLocationManager?.stopUpdatingHeading()
     }
+    
+    public func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
+        self.eventSink!(newHeading.magneticHeading)
+    }
+    
     
 }

@@ -12,7 +12,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  int _compas;
+  int _compas = 0;
 
   @override
   void initState() {
@@ -22,19 +22,18 @@ class _MyAppState extends State<MyApp> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    bool result = false;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    try {
-      result = await SimpleFlutterCompass.check();
-      if (!result) return;
+
+    bool result = await SimpleFlutterCompass.check();
+    print(result);
+    if (result) {
+      await SimpleFlutterCompass.start();
       await SimpleFlutterCompass.listenToCompas((reading) {
         setState(() {
           _compas = reading.ceil();
         });
       });
-
-    } on PlatformException {
-
+    } else {
+      print("Hardware not available");
     }
 
     // If the widget was removed from the tree while the asynchronous platform
@@ -51,7 +50,29 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: Text('Value we got : $_compas\n'),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text('Current Heading : $_compas\n'),
+              RaisedButton(
+                child: Text("Start"),
+                onPressed: () async {
+                  await SimpleFlutterCompass.start();
+                  await SimpleFlutterCompass.listenToCompas((reading) {
+                    setState(() {
+                      _compas = reading.ceil();
+                    });
+                  });
+                },
+              ),
+              RaisedButton(
+                child: Text("Stop"),
+                onPressed: () {
+                  SimpleFlutterCompass.stopListenCompas();
+                },
+              )
+            ],
+          ),
         ),
       ),
     );
