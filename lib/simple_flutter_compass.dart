@@ -3,47 +3,58 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 
 class SimpleFlutterCompass {
-  static const MethodChannel _channel =
-  const MethodChannel("com.palawenos.simple_flutter_compas.method");
 
-  static Future<String> get platformVersion async {
-    final String version = await _channel.invokeMethod('getPlatformVersion');
-    return version;
-  }
+  final MethodChannel _channel = MethodChannel("com.palawenos.simple_flutter_compas.method");
+  final mChannel = EventChannel("com.palawenos.simple_flutter_compas.event");
+  StreamSubscription _compasSubscription;
+  Function _listener;
 
-  static Future<bool> check() async {
+  /**
+   * check if hardaware for fetching heading/bearing is available
+   */
+  Future<bool> check() async {
     var success = true;
     success = await _channel.invokeMethod("check");
     return success;
   }
 
-  static const mChannel = const EventChannel("com.palawenos.simple_flutter_compas.event");
-  static StreamSubscription _compasSubscription;
+  /**
+   * getter for the stream subscription in case user wasnt to access it directly
+   */
+  StreamSubscription<double> get StreamCompass {
+    return _compasSubscription;
+  }
 
-  static Future<void> listenToCompas(Function listener) async {
+  /**
+   * set a listener for your application to wait for new data to come in
+   */
+  void setListener(Function listener) {
+    _listener = listener;
+  }
+
+  /**
+   * starts monitoring magnetometer service and register a stream receiver
+   * all events are passed to the listener callback
+   */
+  Future<void> listen() async {
+    await _channel.invokeMethod("start");
     _compasSubscription = mChannel.receiveBroadcastStream().listen((dynamic event) {
-      listener(event < 0 ? event * -1 : event);
+      _listener(event);
     }, onError: (dynamic error) {
       print("error $error");
-      listener(0);
+      _listener(0.0);
     });
   }
 
-  /**
-   * stops the hardware and cancels the subscription
-   */
-  static Future<void> stopListenCompas() async {
-    _channel.invokeMethod("stop");
-    if (_compasSubscription == null) return;
-    _compasSubscription.cancel();
-  }
+
 
   /**
-   * for iOS only
-   * starts the hardware
+   * stops the hardware and cancels the stream subscription
    */
-  static Future<void> start() async {
-    _channel.invokeMethod("start");
+  Future<void> stopListen() async {
+    _channel.invokeMethod("stop"); //need for ios
+    if (_compasSubscription == null) return;
+    _compasSubscription.cancel();
   }
 
 
