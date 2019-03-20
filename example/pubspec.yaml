@@ -1,5 +1,5 @@
 name: simple_flutter_compass_example
-description: Demonstrates how to use the simple_flutter_compass plugin.
+description:
 publish_to: 'none'
 
 environment:

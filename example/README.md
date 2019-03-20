@@ -4,13 +4,40 @@ Demonstrates how to use the simple_flutter_compass plugin.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+Import Plugin
+```
+import 'package:simple_flutter_compass/simple_flutter_compass.dart';
+```
 
-A few resources to get you started if this is your first Flutter project:
+Create Instance
+```
+SimpleFlutterCompass _simpleFlutterCompass = SimpleFlutterCompass();
+```
 
-- [Lab: Write your first Flutter app](https://flutter.io/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.io/docs/cookbook)
+Check if hardware exists and set a listener
+```
+_simpleFlutterCompass.check().then((result) {
+    if (result) {
+        _simpleFlutterCompass.setListener(_streamListener);
+    } else {
+        print("Hardware not available");
+    }
+});
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.io/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+void _streamListener(double currentHeading) {
+    setState(() {
+      //we set the new heading value to our _compas variable to display on screen
+      _compas = currentHeading;
+    });
+}
+```
+
+Start listening
+```
+_simpleFlutterCompass.listen();
+```
+
+Stop listening
+```
+_simpleFlutterCompass.stopListen();
+```
