@@ -1,5 +1,5 @@
 name: simple_flutter_compass
-description: A new Flutter plugin compass
+description: Flutter plugin for fetching the device's current heading. Value range from 0-360 with 0 facing North.
 version: 0.0.1
 author: Aman Adriano <palawenodev@gmail.com>
 homepage: https://github.com/amanadriano/simple_flutter_compass
