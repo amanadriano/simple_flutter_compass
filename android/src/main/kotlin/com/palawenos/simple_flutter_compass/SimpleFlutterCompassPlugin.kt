@@ -26,10 +26,15 @@ class SimpleFlutterCompassPlugin: MethodCallHandler {
       val channel = MethodChannel(registrar.messenger(), "com.palawenos.simple_flutter_compas.method")
       channel.setMethodCallHandler(SimpleFlutterCompassPlugin())
 
-      mSensorManager = registrar.activeContext().getSystemService(Context.SENSOR_SERVICE) as SensorManager;
-      val sensorListener = SensorListener(mSensorManager);
-      mChannel = EventChannel(registrar.view(), "com.palawenos.simple_flutter_compas.event")
-      mChannel.setStreamHandler(sensorListener);
+      try {
+        mSensorManager = registrar.activeContext().getSystemService(Context.SENSOR_SERVICE) as SensorManager;
+        val sensorListener = SensorListener(mSensorManager);
+        mChannel = EventChannel(registrar.view(), "com.palawenos.simple_flutter_compas.event")
+        mChannel.setStreamHandler(sensorListener);
+      } catch (e : Exception) {
+        //failed to setup hardware or hardware missing
+        e.printStackTrace();
+      }
 
     }
   }
