@@ -28,9 +28,11 @@ class SimpleFlutterCompassPlugin: MethodCallHandler {
 
       try {
         mSensorManager = registrar.activeContext().getSystemService(Context.SENSOR_SERVICE) as SensorManager;
-        val sensorListener = SensorListener(mSensorManager);
-        mChannel = EventChannel(registrar.view(), "com.palawenos.simple_flutter_compas.event")
-        mChannel.setStreamHandler(sensorListener);
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) !== null && mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) !== null) {
+          val sensorListener = SensorListener(mSensorManager);
+          mChannel = EventChannel(registrar.view(), "com.palawenos.simple_flutter_compas.event")
+          mChannel.setStreamHandler(sensorListener);
+        }
       } catch (e : Exception) {
         //failed to setup hardware or hardware missing
         e.printStackTrace();
