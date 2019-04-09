@@ -52,6 +52,11 @@ class SimpleFlutterCompassPlugin: MethodCallHandler {
 
     //check if device has the hardware
     mSensorManager = mRegistrar.activeContext().getSystemService(Context.SENSOR_SERVICE) as SensorManager
+    if (mSensorManager == null) {
+      print("No sensor present");
+      return false;
+    };
+
     if (mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) != null) {
       print("has sensor present")
       return true
